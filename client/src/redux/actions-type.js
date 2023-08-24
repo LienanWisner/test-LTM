@@ -1,0 +1,2 @@
+export const SAVE_MESSAGES = "SAVE_MESSAGES"
+export const GET_ALL_MESSAGES = "GET_ALL_MESSAGES"
