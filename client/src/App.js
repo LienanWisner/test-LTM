@@ -10,69 +10,74 @@ import { saveMessages, getMessages } from "./redux/actions";
 const socket = io("http://localhost:4000");
 
 function App() {
-  // const getMessages = useSelector((state)=>state.allMessages)
+  const messagesArray = useSelector((state)=>state.allMessages)
+ 
   const dispatch = useDispatch()
+  // const messagesArray = dispatch(getMessages())
 
   const [sender, setSender] = useState("");
   const [content, setContent] = useState("");
   const [disabled, setDisabled] = useState(false);
-  const [messages, setMessages]= useState([])
+  // const [messages, setMessages]= useState([])
 
-  //Se puede hacer el siguiente useEffect pero usando un estado global
+  //tendria que ser global state?
+  // const [storedMessages, setStoreMessages] = useState([])
+  // const [firstTime, setFirstTime] = useState(false)
+
+
   useEffect(() => {
-    const receivedMsg = (message)=>{
-      setMessages([message, ...messages])
-    }
+    dispatch(getMessages())
+    // const receivedMsg = (message)=>{
+    //   dispatch(saveMessages(message))
+      
+    // }
     
-    socket.on("message", receivedMsg)
+    socket.on("message", "aaa")
 
     return () => {
-      socket.off("message", receivedMsg)
+      socket.off("message", "aaa")
     };
-  }, [messages]);
+  }, []);
 
+
+  //Handlers
+
+  //Set name
   const senderHandler = (e) => {
     setSender(e.target.value);
   };
 
-  const contentHandler = (e)=>{
-    setContent(e.target.value);
-  }
-
+  //Set name submit
   const senderSubmit = (e) => {
     e.preventDefault();
     setSender(sender);
     setDisabled(true);
   };
 
+  //Set text
+  const contentHandler = (e)=>{
+    setContent(e.target.value);
+  }
+  //Set text submit
   const handleSubmit = (e) => {
     e.preventDefault();
     sender !== ""
       ? socket.emit("message", content, sender)
-      : alert("You must enter your sender to send a message");
+      : alert("You must enter your name to send a message");
 
     const newMessage = {
       content: content,
-      sender: sender
+      // sender: sender
+      sender: "Me"
     }
-
-    setMessages([newMessage, ...messages])
-    setContent("")
     dispatch(saveMessages(newMessage))
+    console.log("Estado actualizado después de guardar el mensaje:", messagesArray);
+    setContent("")
+    // setMessages([newMessage, ...messages])
     
   };
 
-  //Con useEffect tengo que hacer un dispatch a la action para traer los mensajes del estado global
-  //Ojo si hay que mapear
-
-  // useEffect(() => {
-  //   // Effect function
-    
-  //   return () => {
-  //     // Cleanup function
-  //   };
-  // }, [/* dependencies array */]);
-
+  
   return (
     <div className="App">
       <div className="container mt-3">
@@ -118,15 +123,53 @@ function App() {
                   type="submit"
                   id="btn-message"
                 >
-                  Set
+                  Send
                 </button>
               </div>
             </form>
 
             {/* Chat */}
             <div className="card mt-3 mb-3" id="content-chat">
-              <div className="card-body"></div>
+              <div className="card-body">
+                {/* <div>
+                  {messagesArray.map(message => (
+                    <small>{message.sender}:{message.content}</small>
+                  ))}
+                  </div> */}
+
+                  
+                
+                  {messagesArray.length > 0 ? (
+                    messagesArray.map((message,index)=>(
+                      <div key={index} className={`d-flex p-3 ${message.sender === "Me"? "justify-content-end" : "justify-content-start"}`}>
+                        <div className={`card mb-3 border-1 ${message.sender === "Me" ? "bg-success bg-opacity-25" : "bg-light"}`}>
+                        <div className="card-body">
+                          <small>{message.sender}:{message.content}</small>
+                        </div>
+                        </div>
+                      </div>
+    
+                    ))
+                  ) : (
+                    console.log("Valor de messagesArray:", messagesArray)
+                  )}
+                  
+                
+
+              </div>
             </div>
+
+            {/* Chat stored */}
+                {/* {messagesArray.map((message, index)=>{
+                  <div key={index} className={`d-flex p-3 ${message.sender === "Me"? "justify-content-end" : "justify-content-start"}`}>
+                    <div className={`card mb-3 border-1 ${message.sender === "Me" ? "bg-success bg-opacity-25" : "bg-light"}`}>
+                    <div className="card-body">
+                      <small>{message.sender}:{message.content}</small>
+                    </div>
+                    </div>
+                  </div>
+
+                })} */}
           </div>
         </div>
       </div>

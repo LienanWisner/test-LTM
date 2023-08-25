@@ -13,7 +13,7 @@ const reducer = (state = initialState, action)=>{
             return{...state, allMessages: action.payload}
 
         default:
-            return{...state, allMessages: action.payload }
+            return state;
     }
 }
 
