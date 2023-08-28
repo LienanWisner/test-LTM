@@ -29,10 +29,9 @@ export const getMessages = () => {
           payload: data,
         });
   
-        return data; // Puedes retornar los datos si es necesario en el componente
+        return data;
       } catch (error) {
         console.log("Action error: getMessages", error);
-        // Puedes disparar una acción para manejar el error en el estado si es necesario
       }
     };
   };

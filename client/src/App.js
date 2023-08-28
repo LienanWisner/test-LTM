@@ -18,7 +18,7 @@ function App() {
   const [sender, setSender] = useState("");
   const [content, setContent] = useState("");
   const [disabled, setDisabled] = useState(false);
-  // const [messages, setMessages]= useState([])
+  const [messages, setMessages]= useState([])
 
   //tendria que ser global state?
   // const [storedMessages, setStoreMessages] = useState([])
@@ -26,16 +26,20 @@ function App() {
 
 
   useEffect(() => {
+    // socket.emit("start", ()=>{
+    // })
+    console.log(messages)
     dispatch(getMessages())
-    // const receivedMsg = (message)=>{
-    //   dispatch(saveMessages(message))
-      
-    // }
+    const receivedMsg = (msg)=>{
+      // dispatch(saveMessages(message))
+      console.log(msg)
+      setMessages([...msg])
+    }
     
-    socket.on("message", "aaa")
+    socket.on('message', receivedMsg)
 
     return () => {
-      socket.off("message", "aaa")
+      socket.off('message', receivedMsg)
     };
   }, []);
 
@@ -70,14 +74,24 @@ function App() {
       // sender: sender
       sender: "Me"
     }
-    dispatch(saveMessages(newMessage))
-    console.log("Estado actualizado después de guardar el mensaje:", messagesArray);
+    // dispatch(saveMessages(newMessage))
+    
+    // console.log("Estado actualizado después de guardar el mensaje:", messagesArray);
     setContent("")
     // setMessages([newMessage, ...messages])
     
+    
   };
-
+  socket.off('message').on('message',(array)=>{
+    console.log(array)
+    setMessages(array)
+  })
+  // const receivedMsg = (message)=>{
+  //   dispatch(saveMessages(message))
+    
+  // }
   
+ 
   return (
     <div className="App">
       <div className="container mt-3">
@@ -139,8 +153,8 @@ function App() {
 
                   
                 
-                  {messagesArray.length > 0 ? (
-                    messagesArray.map((message,index)=>(
+                  {messages.length > 0 && (
+                    messages.map((message,index)=>(
                       <div key={index} className={`d-flex p-3 ${message.sender === "Me"? "justify-content-end" : "justify-content-start"}`}>
                         <div className={`card mb-3 border-1 ${message.sender === "Me" ? "bg-success bg-opacity-25" : "bg-light"}`}>
                         <div className="card-body">
@@ -150,8 +164,6 @@ function App() {
                       </div>
     
                     ))
-                  ) : (
-                    console.log("Valor de messagesArray:", messagesArray)
                   )}
                   
                 

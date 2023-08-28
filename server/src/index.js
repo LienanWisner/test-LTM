@@ -7,6 +7,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import router from '../src/routes/index.js';
 import morgan from "morgan"
+import Message from './models/Message.js';
 
 dotenv.config();
 const app = express();
@@ -26,7 +27,7 @@ app.use("/", router)
 
 // MongoDB connection
 const uri = process.env.URI;
-mongoose.connect(process.env.uri, {
+mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -41,17 +42,27 @@ mongoose.connect(process.env.uri, {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-
+  
   // Event handler
-  socket.on('message', (msg, name) => {
-    socket.broadcast.emit('message', {
-      body: msg,
-      from : name
-    });
+  socket.on("start", async()=>{
+    const messages = await Message.find()
+
+    socket.emit("start", messages)
+  })
+
+  socket.on('message', async (msg, name) => {
+    console.log(msg, name)
+    await Message.create({
+      content: msg,
+      sender: name
+    })
+    const messages = await Message.find({})
+    console.log(messages)
+    socket.emit('message', messages);
   });
 
   socket.on('disconnect', () => {
-    console.log('Usuario desconectado:', socket.id);
+    console.log('Usuario disconnected:', socket.id);
   });
 });
 
