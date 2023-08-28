@@ -44,21 +44,8 @@ io.on('connection', (socket) => {
 
   
   // Event handler
-  socket.on("start", async()=>{
-    const messages = await Message.find()
-
-    socket.emit("start", messages)
-  })
-
-  socket.on('message', async (msg, name) => {
-    console.log(msg, name)
-    await Message.create({
-      content: msg,
-      sender: name
-    })
-    const messages = await Message.find({})
-    console.log(messages)
-    socket.emit('message', messages);
+  socket.on("send-message", (content, sender) => {
+    socket.emit("receive-message", content, sender);
   });
 
   socket.on('disconnect', () => {
@@ -71,6 +58,4 @@ const port = process.env.PORT;
 server.listen(port, () => {
   console.log(`Server running on: ${port}`);
 });
-
-
 

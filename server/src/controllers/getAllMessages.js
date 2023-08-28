@@ -5,7 +5,7 @@ const getAllMessages = async(req, res) => {
       const messages = await Message.find();
       res.json(messages);
     } catch (error) {
-      res.status(500).json({ error: 'Error al obtener los mensajes' });
+      res.status(500).json({ error: 'Error getting messagges' });
     }
 };
 

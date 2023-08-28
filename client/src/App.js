@@ -13,35 +13,32 @@ function App() {
   const messagesArray = useSelector((state)=>state.allMessages)
  
   const dispatch = useDispatch()
-  // const messagesArray = dispatch(getMessages())
+ 
 
   const [sender, setSender] = useState("");
   const [content, setContent] = useState("");
-  const [disabled, setDisabled] = useState(false);
-  const [messages, setMessages]= useState([])
+  // const [disabled, setDisabled] = useState(false);
+  // const [messages, setMessages]= useState([])
 
-  //tendria que ser global state?
-  // const [storedMessages, setStoreMessages] = useState([])
-  // const [firstTime, setFirstTime] = useState(false)
-
-
+  
   useEffect(() => {
-    // socket.emit("start", ()=>{
-    // })
-    console.log(messages)
+   
     dispatch(getMessages())
-    const receivedMsg = (msg)=>{
-      // dispatch(saveMessages(message))
-      console.log(msg)
-      setMessages([...msg])
-    }
+    socket.on("receive-message",(content, sender)=>{
     
-    socket.on('message', receivedMsg)
+      const newMessage = {
+        content: content,
+        sender: sender
+      }
+      dispatch(saveMessages(newMessage))
+
+    })
+   
 
     return () => {
-      socket.off('message', receivedMsg)
+      
     };
-  }, []);
+  }, [socket]);
 
 
   //Handlers
@@ -55,7 +52,7 @@ function App() {
   const senderSubmit = (e) => {
     e.preventDefault();
     setSender(sender);
-    setDisabled(true);
+    // setDisabled(true);
   };
 
   //Set text
@@ -66,30 +63,14 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     sender !== ""
-      ? socket.emit("message", content, sender)
+      ? socket.emit("send-message", content, sender)
       : alert("You must enter your name to send a message");
 
-    const newMessage = {
-      content: content,
-      // sender: sender
-      sender: "Me"
-    }
-    // dispatch(saveMessages(newMessage))
-    
-    // console.log("Estado actualizado después de guardar el mensaje:", messagesArray);
-    setContent("")
-    // setMessages([newMessage, ...messages])
+    setContent(content)
+
     
     
   };
-  socket.off('message').on('message',(array)=>{
-    console.log(array)
-    setMessages(array)
-  })
-  // const receivedMsg = (message)=>{
-  //   dispatch(saveMessages(message))
-    
-  // }
   
  
   return (
@@ -145,16 +126,9 @@ function App() {
             {/* Chat */}
             <div className="card mt-3 mb-3" id="content-chat">
               <div className="card-body">
-                {/* <div>
-                  {messagesArray.map(message => (
-                    <small>{message.sender}:{message.content}</small>
-                  ))}
-                  </div> */}
-
-                  
                 
-                  {messages.length > 0 && (
-                    messages.map((message,index)=>(
+                  {messagesArray.length > 0 && (
+                    messagesArray.map((message,index)=>(
                       <div key={index} className={`d-flex p-3 ${message.sender === "Me"? "justify-content-end" : "justify-content-start"}`}>
                         <div className={`card mb-3 border-1 ${message.sender === "Me" ? "bg-success bg-opacity-25" : "bg-light"}`}>
                         <div className="card-body">
@@ -165,8 +139,6 @@ function App() {
     
                     ))
                   )}
-                  
-                
 
               </div>
             </div>
