@@ -44,12 +44,11 @@ io.on('connection', (socket) => {
 
   
   // Event handler
-  socket.on("send-message", async (data) => {
-    console.log(data)
-    await Message.create(data)
-    const message = await Message.find()
-    console.log(message)
-    socket.broadcast.emit("receive-message", message);
+  socket.on("send-message", (message, name) => {
+    socket.broadcast.emit("receive-message", {
+      content: message,
+      sender: name
+    });
   });
 
   socket.on('disconnect', () => {

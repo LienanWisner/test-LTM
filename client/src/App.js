@@ -20,28 +20,41 @@ function App() {
     content: ""
   });
   
-  const [messages, setMessages] = useState(messagesArray)
+  const [messages, setMessages] = useState([])
+  const [storedMessages, setStoredMessages] = useState([])
+  const [firstTime, setFirstTime] = useState(false)
   
-
-
-  socket.off("receive-message").on("receive-message",(message)=>{    
-    // dispatch(saveMessages(data))
-    // dispatch(getMessages())
-    setMessages(message)
-  })
 
   useEffect(() => {
     dispatch(getMessages())
-
-    return () => {
-      
-    };
-  }, []);
+  
+  }, [])
+  
+ 
 
   useEffect(() => {
-    console.log(messagesArray)
 
-  }, [messagesArray]);
+    const receivedMessage = (message)=>{  
+      setMessages([message, ...messages])
+      dispatch(getMessages())
+    }
+    socket.on("receive-message", receivedMessage)
+
+    return () => {
+      socket.off("receive-message", receivedMessage)
+    };
+  }, [messages]);
+
+  
+
+  if(!firstTime){
+    setStoredMessages(messagesArray)
+    console.log(messagesArray);
+    console.log(storedMessages);
+    setFirstTime(true)
+  }
+
+  
 
 
   //Handlers
@@ -57,10 +70,19 @@ function App() {
   //Set text submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    socket.emit("send-message", data)
-    // data.sender !== ""
-      // ? socket.emit("send-message", data)
-      // : alert("You must enter your name to send a message");
+    
+    data.sender !== ""
+      ? socket.emit("send-message", data.content, data.sender)
+      : alert("You must enter your name to send a message");
+
+    const newMessage = {
+      content: data.content,
+      sender: "Me"
+    }
+
+    setMessages([newMessage, ...messages])
+
+    dispatch(saveMessages(data))
   };
   
  
@@ -105,7 +127,7 @@ function App() {
               <div className="card-body">
                 
                   {
-                    messages.length > 0 ? messages.map((message,index)=>(
+                     messages.map((message,index)=>(
                       <div key={index} className={`d-flex p-3 ${message.sender === "Me"? "justify-content-end" : "justify-content-start"}`}>
                         <div className={`card mb-3 border-1 ${message.sender === "Me" ? "bg-success bg-opacity-25" : "bg-light"}`}>
                         <div className="card-body">
@@ -114,23 +136,27 @@ function App() {
                         </div>
                       </div>
     
-                    )):(console.log(messagesArray))
+                    ))
+                  }
+
+                  {/* Chat stored */}
+                  <small className="text-center text-muted"> - Saved Messages -</small>
+                    {messagesArray.length > 0 && messagesArray.map((message,index)=>(
+                      <div key={index} className={`d-flex p-3 ${message.sender === data.sender? "justify-content-end" : "justify-content-start"}`}>
+                        <div className={`card mb-3 border-1 ${message.sender === data.sender ? "bg-success bg-opacity-25" : "bg-light"}`}>
+                        <div className="card-body">
+                          <small className="text-muted">{message.sender}:{message.content}</small>
+                        </div>
+                        </div>
+                      </div>
+    
+                    )) 
                   }
 
               </div>
             </div>
 
-            {/* Chat stored */}
-                {messagesArray.length > 0 && messagesArray.map((message, index)=>{
-                  <div key={index} className={`d-flex p-3 ${message.sender === data.sender? "justify-content-end" : "justify-content-start"}`}>
-                    <div className={`card mb-3 border-1 ${message.sender === data.sender ? "bg-success bg-opacity-25" : "bg-light"}`}>
-                    <div className="card-body">
-                      <small>{message.sender}:{message.content}</small>
-                    </div>
-                    </div>
-                  </div>
-
-                })}
+            
           </div>
         </div>
       </div>
