@@ -7,6 +7,7 @@ export const saveMessages = (params)=>{
     return async (dispatch) =>{
         try{
             const {data} = await axios.post(endpoint, params)
+            // console.log(data);
             return dispatch({
                 type: SAVE_MESSAGES,
                 payload: data
@@ -28,45 +29,8 @@ export const getMessages = () => {
           type: GET_ALL_MESSAGES,
           payload: data,
         });
-  
-        return data;
       } catch (error) {
         console.log("Action error: getMessages", error);
       }
     };
   };
-
-// export const getMessages = ()=>{
-//     return async(dispatch) => {
-//         try{
-//             return fetch(endpoint)
-//             .then(response=>response.json())
-//             .then((data) => 
-//             console.log(data) &&
-//             dispatch({
-//                type: GET_ALL_MESSAGES,
-//                payload: data,
-//             }));
-//         }
-//         catch(error){
-//             console.log("Action error: getMessages")
-//             // console.log(error.response.data.message)}
-//         }
-//     };
-//     };
-
-// export const getMessages = ()=>{
-//     return async(dispatch)=>{
-//         try{
-//             const {data} = await axios.get(endpoint)
-            
-//             return dispatch({
-//                 type:GET_ALL_MESSAGES,
-//                 payload: data
-//             })
-//         } catch(error){
-//             console.log("Action error: getMessages")
-//             // console.log(error.response.data.message)}
-//         }
-//     }
-// }

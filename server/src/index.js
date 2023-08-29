@@ -44,8 +44,12 @@ io.on('connection', (socket) => {
 
   
   // Event handler
-  socket.on("send-message", (content, sender) => {
-    socket.emit("receive-message", content, sender);
+  socket.on("send-message", async (data) => {
+    console.log(data)
+    await Message.create(data)
+    const message = await Message.find()
+    console.log(message)
+    socket.broadcast.emit("receive-message", message);
   });
 
   socket.on('disconnect', () => {

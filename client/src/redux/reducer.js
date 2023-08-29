@@ -7,6 +7,8 @@ const initialState = {
 const reducer = (state = initialState, action)=>{
     switch(action.type){
         case SAVE_MESSAGES:
+            // console.log(action.payload);
+            // return{...state}
             return{...state, allMessages: action.payload}
         
         case GET_ALL_MESSAGES:
