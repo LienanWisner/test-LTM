@@ -1,18 +1,18 @@
 import "./App.css";
 import io from "socket.io-client";
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import {useDispatch } from "react-redux";
 import { saveMessages, getMessages } from "./redux/actions";
+import Chat from "./components/Chat";
 
 //socket to Backend
 const socket = io("http://localhost:4000");
 
 function App() {
-
-  const messagesArray = useSelector((state) => state.allMessages);
-
+ 
   const dispatch = useDispatch();
 
+  //Local states
   const [data, setData] = useState({
     sender: "",
     content: "",
@@ -20,15 +20,16 @@ function App() {
 
   const [messages, setMessages] = useState([]);
 
-  useEffect(()=>{
-    dispatch(getMessages());
-
-  }, [])
-
+  //Use Effect
   useEffect(() => {
     dispatch(getMessages());
+  }, []);
+
+  useEffect(() => {
     const receivedMessage = (message) => {
       setMessages([message, ...messages]);
+      
+
     };
     socket.on("receive-message", receivedMessage);
 
@@ -47,10 +48,11 @@ function App() {
     });
   };
 
-  //Send text submit
+  //Send text handler
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    //emit socket
     data.sender !== ""
       ? socket.emit("send-message", data.content, data.sender)
       : alert("You must enter your name to send a message");
@@ -59,11 +61,13 @@ function App() {
       content: data.content,
       sender: "Me",
     };
-
+    
     setMessages([newMessage, ...messages]);
-
+  
+    //sending message to DB
     dispatch(saveMessages(data));
-    // dispatch(getMessages());
+    dispatch(getMessages());
+
   };
 
   return (
@@ -87,7 +91,7 @@ function App() {
                   onChange={dataHandler}
                 />
               </div>
-              {/* Message */}
+              {/* Content */}
               <div className="d-flex mt-3">
                 <input
                   type="text"
@@ -108,68 +112,8 @@ function App() {
           </div>
         </div>
 
-        {/* Chat */}
-        <div className="card mt-3 mb-3" id="content-chat">
-          <div className="card-body">
-            {messages.length > 0 &&
-              messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`d-flex p-3 ${
-                    message.sender === "Me"
-                      ? "justify-content-end"
-                      : "justify-content-start"
-                  }`}
-                >
-                  <div
-                    className={`card mb-3 border-2 rounded-5 ${
-                      message.sender === "Me"
-                        ? "bg-primary bg-opacity-50"
-                        : "bg-light bg-opacity-75"
-                    }`}
-                  >
-                    <div className="card-body">
-                      <small>
-                        {message.sender} : {message.content}
-                      </small>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        <Chat messages = {messages} data={data}/>
 
-            {/* Chat DB */}
-            <small className="text-center text-muted">
-              {" "}
-              - Previous Messages -
-            </small>
-
-            {messagesArray.length > 0 &&
-              messagesArray.map((message, index) => (
-                <div
-                  key={index}
-                  className={`d-flex p-3 ${
-                    message.sender === data.sender
-                      ? "justify-content-end"
-                      : "justify-content-start"
-                  }`}
-                >
-                  <div
-                    className={`card mb-3 border-2 rounded-5  ${
-                      message.sender === data.sender
-                        ? "bg-primary bg-opacity-25"
-                        : "bg-light bg-opacity-25"
-                    }`}
-                  >
-                    <div className="card-body">
-                      <small className="text-muted">
-                        {message.sender} : {message.content}
-                      </small>
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
       </div>
     </div>
   );

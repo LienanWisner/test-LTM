@@ -9,11 +9,11 @@ const reducer = (state = initialState, action)=>{
         case SAVE_MESSAGES:
             // console.log(action.payload);
             // return{...state}
-            return{...state, allMessages: action.payload}
+            return{allMessages: [...state.allMessages, action.payload]}
         
         case GET_ALL_MESSAGES:
             return{...state, allMessages: action.payload}
-
+            
         default:
             return state;
     }
