@@ -1,101 +1,84 @@
 import "./App.css";
-
 import io from "socket.io-client";
-import axios from "axios";
 import { useState, useEffect } from "react";
-import {useSelector, useDispatch} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { saveMessages, getMessages } from "./redux/actions";
 
 //socket to Backend
 const socket = io("http://localhost:4000");
 
 function App() {
-  const messagesArray = useSelector((state)=>state.allMessages)
- 
-  const dispatch = useDispatch()
- 
+
+  const messagesArray = useSelector((state) => state.allMessages);
+
+  const dispatch = useDispatch();
 
   const [data, setData] = useState({
     sender: "",
-    content: ""
+    content: "",
   });
-  
-  const [messages, setMessages] = useState([])
-  const [storedMessages, setStoredMessages] = useState([])
-  const [firstTime, setFirstTime] = useState(false)
-  
 
-  useEffect(() => {
-    dispatch(getMessages())
-  
+  const [messages, setMessages] = useState([]);
+
+  useEffect(()=>{
+    dispatch(getMessages());
+
   }, [])
-  
- 
 
   useEffect(() => {
-
-    const receivedMessage = (message)=>{  
-      setMessages([message, ...messages])
-      dispatch(getMessages())
-    }
-    socket.on("receive-message", receivedMessage)
+    dispatch(getMessages());
+    const receivedMessage = (message) => {
+      setMessages([message, ...messages]);
+    };
+    socket.on("receive-message", receivedMessage);
 
     return () => {
-      socket.off("receive-message", receivedMessage)
+      socket.off("receive-message", receivedMessage);
     };
   }, [messages]);
 
-  
-
-  if(!firstTime){
-    setStoredMessages(messagesArray)
-    console.log(messagesArray);
-    console.log(storedMessages);
-    setFirstTime(true)
-  }
-
-  
-
-
   //Handlers
 
-  //Set name
+  //Sender & content handler
   const dataHandler = (e) => {
     setData({
-      ...data, 
-      [e.target.name]: e.target.value 
-    })
+      ...data,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  //Set text submit
+  //Send text submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     data.sender !== ""
       ? socket.emit("send-message", data.content, data.sender)
       : alert("You must enter your name to send a message");
 
     const newMessage = {
       content: data.content,
-      sender: "Me"
-    }
+      sender: "Me",
+    };
 
-    setMessages([newMessage, ...messages])
+    setMessages([newMessage, ...messages]);
 
-    dispatch(saveMessages(data))
+    dispatch(saveMessages(data));
+    // dispatch(getMessages());
   };
-  
- 
+
   return (
-    <div className="App " >
-      <div className="container   mt-3 w-50">
-        <div className="card w-50 align-items-center justify-content-center mx-auto" id="data-card"  >
-          <div className="card-body" >
+    <div className="App ">
+      <div className="container   mt-3 ">
+        <div
+          className="card w-50 align-items-center justify-content-center mx-auto"
+          id="data-card"
+        >
+          <div className="card-body">
             <h5 className="text-center">LTM CHAT</h5>
 
-            {/* Send message */}
+            {/* Name */}
             <form onSubmit={handleSubmit}>
-            <div className="d-flex">
+              <div className="d-flex">
                 <input
                   type="text"
                   className="form-control"
@@ -104,6 +87,7 @@ function App() {
                   onChange={dataHandler}
                 />
               </div>
+              {/* Message */}
               <div className="d-flex mt-3">
                 <input
                   type="text"
@@ -121,49 +105,72 @@ function App() {
                 </button>
               </div>
             </form>
-
-            
-
-              </div>
-            </div>
-
-            {/* Chat */}
-            <div className="card mt-3 mb-3" id="content-chat">
-              
-              <div className="card-body">
-                
-                  {
-                     messages.map((message,index)=>(
-                      <div key={index} className={`d-flex p-3 ${message.sender === "Me"? "justify-content-end" : "justify-content-start"}`}>
-                        <div className={`card mb-3 border-2 rounded-5 ${message.sender === "Me" ? "bg-primary bg-opacity-50" : "bg-light bg-opacity-75"}`}>
-                        <div className="card-body">
-                          <small>{message.sender} : {message.content}</small>
-                        </div>
-                        </div>
-                      </div>
-    
-                    ))
-                  }
-
-                  {/* Chat stored */}
-                  <small className="text-center text-muted"> - Previous Messages -</small>
-                    {messagesArray.length > 0 && messagesArray.map((message,index)=>(
-                      <div key={index} className={`d-flex p-3 ${message.sender === data.sender? "justify-content-end" : "justify-content-start"}`}>
-                        <div className={`card mb-3 border-2 rounded-5  ${message.sender === data.sender ? "bg-primary bg-opacity-25" : "bg-light bg-opacity-25"}`}>
-                        <div className="card-body">
-                          <small className="text-muted">{message.sender} : {message.content}</small>
-                        </div>
-                        </div>
-                      </div>
-    
-                    )) 
-                  }
           </div>
-          
         </div>
-        
+
+        {/* Chat */}
+        <div className="card mt-3 mb-3" id="content-chat">
+          <div className="card-body">
+            {messages.length > 0 &&
+              messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`d-flex p-3 ${
+                    message.sender === "Me"
+                      ? "justify-content-end"
+                      : "justify-content-start"
+                  }`}
+                >
+                  <div
+                    className={`card mb-3 border-2 rounded-5 ${
+                      message.sender === "Me"
+                        ? "bg-primary bg-opacity-50"
+                        : "bg-light bg-opacity-75"
+                    }`}
+                  >
+                    <div className="card-body">
+                      <small>
+                        {message.sender} : {message.content}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+            {/* Chat DB */}
+            <small className="text-center text-muted">
+              {" "}
+              - Previous Messages -
+            </small>
+
+            {messagesArray.length > 0 &&
+              messagesArray.map((message, index) => (
+                <div
+                  key={index}
+                  className={`d-flex p-3 ${
+                    message.sender === data.sender
+                      ? "justify-content-end"
+                      : "justify-content-start"
+                  }`}
+                >
+                  <div
+                    className={`card mb-3 border-2 rounded-5  ${
+                      message.sender === data.sender
+                        ? "bg-primary bg-opacity-25"
+                        : "bg-light bg-opacity-25"
+                    }`}
+                  >
+                    <div className="card-body">
+                      <small className="text-muted">
+                        {message.sender} : {message.content}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
       </div>
-      
     </div>
   );
 }

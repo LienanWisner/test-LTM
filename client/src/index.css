@@ -35,3 +35,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@media (max-width: 768px) {
+  /* Estilos para pantallas pequeñas, como celulares */
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Estilos para pantallas medianas, como tablets */
+}
+
+@media (min-width: 1025px) {
+  /* Estilos para pantallas grandes, como computadoras de escritorio */
+}
