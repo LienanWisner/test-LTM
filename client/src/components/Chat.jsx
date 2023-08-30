@@ -1,12 +1,21 @@
-import { useSelector} from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector} from "react-redux";
+import { getMessages } from "../redux/actions";
 
 const Chat =({messages, data})=>{
 
+  const dispatch = useDispatch()
   //Getting global state
   const messagesArray = useSelector((state) => state.allMessages);
 
   //Reversing and slicing global state
-  const previousMessages = [...messagesArray].reverse().slice(0, 5);
+  const previousMessages = [...messagesArray].reverse().slice(0, 50);
+
+  useEffect(() => {
+    dispatch(getMessages())
+
+  }, [])
+  
 
     return(
         <>

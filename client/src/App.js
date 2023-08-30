@@ -2,7 +2,7 @@ import "./App.css";
 import io from "socket.io-client";
 import { useState, useEffect } from "react";
 import {useDispatch } from "react-redux";
-import { saveMessages, getMessages } from "./redux/actions";
+import { saveMessages} from "./redux/actions";
 import Chat from "./components/Chat";
 
 //socket to Backend
@@ -20,16 +20,10 @@ function App() {
 
   const [messages, setMessages] = useState([]);
 
-  //Use Effect
-  useEffect(() => {
-    dispatch(getMessages());
-  }, []);
 
   useEffect(() => {
     const receivedMessage = (message) => {
       setMessages([message, ...messages]);
-      
-
     };
     socket.on("receive-message", receivedMessage);
 
@@ -63,11 +57,10 @@ function App() {
     };
     
     setMessages([newMessage, ...messages]);
+
   
     //sending message to DB
     dispatch(saveMessages(data));
-    dispatch(getMessages());
-
   };
 
   return (

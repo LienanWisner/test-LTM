@@ -7,14 +7,13 @@ export const saveMessages = (params)=>{
     return async (dispatch) =>{
         try{
             const {data} = await axios.post(endpoint, params)
-            // console.log(data);
+            
             return dispatch({
                 type: SAVE_MESSAGES,
                 payload: data
             })
         } catch(error){
-            // console.log("Action error: saveMessages")
-            console.log(error)
+            console.log("Action error: saveMessages", error)
         }
     }
 }
@@ -22,8 +21,6 @@ export const saveMessages = (params)=>{
 export const getMessages = () => {
     return async (dispatch) => {
       try {
-        // const response = await fetch(endpoint);
-        // const data = await response.json();
         const {data} = await axios.get(endpoint)
         dispatch({
           type: GET_ALL_MESSAGES,
